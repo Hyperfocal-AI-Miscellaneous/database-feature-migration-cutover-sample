@@ -1,0 +1,8 @@
+[
+  { "login": "hyperfocal-ci", "id": 1, "name": "Hyperfocal CI", "email": "ci@hyperfocal.dev", "type": "Bot" },
+  { "login": "mina-patel", "id": 2, "name": "Mina Patel", "email": "mina@hyperfocal.dev", "type": "User" },
+  { "login": "tyrone-okonkwo", "id": 3, "name": "Tyrone Okonkwo", "email": "tyrone@hyperfocal.dev", "type": "User" },
+  { "login": "ada-lovelace", "id": 4, "name": "Ada Lovelace", "email": "ada@hyperfocal.dev", "type": "User" },
+  { "login": "renato-silva", "id": 5, "name": "Renato Silva", "email": "renato@hyperfocal.dev", "type": "User" },
+  { "login": "oncall-bot", "id": 6, "name": "On-Call Bot", "type": "Bot" }
+]

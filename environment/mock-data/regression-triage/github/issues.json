@@ -1,0 +1,35 @@
+[
+  {
+    "number": 51,
+    "title": "Incident: /orders/totals returning incorrect net_total",
+    "body": "Finance flagged mismatched totals on the daily reconciliation report — net_total < gross_total for customers who shouldn't have any active discount.\n\nSentry: ORDERS-201\nRelease suspected: 2026.04.18-promo-q1\n\nNeed root cause + hotfix through CI. Blast radius: any order with status='pending' since ~2026-04-18.",
+    "state": "open",
+    "user": { "login": "oncall-bot", "id": 6 },
+    "labels": [{ "name": "incident" }, { "name": "needs-triage" }, { "name": "sev-1" }],
+    "assignees": [],
+    "created_at": "2026-04-22T15:35:00Z",
+    "updated_at": "2026-04-23T10:12:00Z"
+  },
+  {
+    "number": 48,
+    "title": "Feature: dashboard for inventory turnover",
+    "body": "Inventory team wants a dashboard showing items by category + turnover rate. Depends on PR #44 being merged first.",
+    "state": "open",
+    "user": { "login": "renato-silva", "id": 5 },
+    "labels": [{ "name": "feature" }, { "name": "reporting" }],
+    "assignees": [{ "login": "renato-silva", "id": 5 }],
+    "created_at": "2026-04-12T09:00:00Z",
+    "updated_at": "2026-04-19T08:48:00Z"
+  },
+  {
+    "number": 47,
+    "title": "Flaky: integration.test.js fails intermittently on main",
+    "body": "CI has been red ~1 in 10 runs since last week. Not clear if it's related to the Q1 campaign merge or independent.\n\nNot blocking deploys but worth looking into.",
+    "state": "open",
+    "user": { "login": "ada-lovelace", "id": 4 },
+    "labels": [{ "name": "flaky" }, { "name": "ci" }],
+    "assignees": [],
+    "created_at": "2026-04-14T12:22:00Z",
+    "updated_at": "2026-04-22T08:45:00Z"
+  }
+]

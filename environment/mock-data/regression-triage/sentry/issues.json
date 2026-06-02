@@ -1,0 +1,140 @@
+[
+  {
+    "id": "201",
+    "shortId": "ORDERS-201",
+    "title": "DataIntegrityError: net_total < gross_total on /orders/totals",
+    "culprit": "orders.computeTotals",
+    "level": "error",
+    "status": "unresolved",
+    "count": "287",
+    "userCount": 52,
+    "firstSeen": "2026-04-22T15:28:00Z",
+    "lastSeen": "2026-04-23T10:55:00Z",
+    "priority": "high",
+    "isUnhandled": true,
+    "permalink": "http://localhost:8000/organizations/sentry/issues/201/",
+    "metadata": {
+      "type": "DataIntegrityError",
+      "value": "net_total (850.00) is less than gross_total (1000.00) for customer_id=1",
+      "filename": "routes/orders.js",
+      "function": "computeTotals"
+    },
+    "project": { "name": "Orders Service", "slug": "orders-service", "platform": "node" },
+    "assignedTo": null
+  },
+  {
+    "id": "202",
+    "shortId": "ORDERS-202",
+    "title": "JsonWebTokenError: invalid signature",
+    "culprit": "auth.verifyToken",
+    "level": "error",
+    "status": "unresolved",
+    "count": "142",
+    "userCount": 18,
+    "firstSeen": "2026-04-15T11:02:00Z",
+    "lastSeen": "2026-04-23T08:47:00Z",
+    "priority": "medium",
+    "isUnhandled": true,
+    "permalink": "http://localhost:8000/organizations/sentry/issues/202/",
+    "metadata": {
+      "type": "JsonWebTokenError",
+      "value": "invalid signature",
+      "filename": "middleware/auth.js",
+      "function": "verifyToken"
+    },
+    "project": { "name": "Orders Service", "slug": "orders-service", "platform": "node" },
+    "assignedTo": null
+  },
+  {
+    "id": "203",
+    "shortId": "ORDERS-203",
+    "title": "ConnectionTimeoutError: Redis session cache",
+    "culprit": "sessions.getSessionCached",
+    "level": "error",
+    "status": "unresolved",
+    "count": "31",
+    "userCount": 7,
+    "firstSeen": "2026-04-19T04:12:00Z",
+    "lastSeen": "2026-04-22T23:04:00Z",
+    "priority": "low",
+    "isUnhandled": false,
+    "permalink": "http://localhost:8000/organizations/sentry/issues/203/",
+    "metadata": {
+      "type": "ConnectionTimeoutError",
+      "value": "Connection timed out after 5000ms",
+      "filename": "cache/sessions.js",
+      "function": "getSessionCached"
+    },
+    "project": { "name": "Orders Service", "slug": "orders-service", "platform": "node" },
+    "assignedTo": null
+  },
+  {
+    "id": "204",
+    "shortId": "ORDERS-204",
+    "title": "PerformanceIssue: GET /orders/by-customer slow query",
+    "culprit": "orders.listOrdersByCustomer",
+    "level": "warning",
+    "status": "resolved",
+    "count": "812",
+    "userCount": 56,
+    "firstSeen": "2026-04-10T09:31:00Z",
+    "lastSeen": "2026-04-14T17:28:00Z",
+    "priority": "medium",
+    "isUnhandled": false,
+    "permalink": "http://localhost:8000/organizations/sentry/issues/204/",
+    "metadata": {
+      "type": "PerformanceIssue",
+      "value": "Slow database query on orders.listOrdersByCustomer",
+      "filename": "routes/orders.js",
+      "function": "listOrdersByCustomer"
+    },
+    "project": { "name": "Orders Service", "slug": "orders-service", "platform": "node" },
+    "assignedTo": null
+  },
+  {
+    "id": "205",
+    "shortId": "ORDERS-205",
+    "title": "ValidationError: order_id format invalid",
+    "culprit": "orders.parseOrderId",
+    "level": "info",
+    "status": "ignored",
+    "count": "3201",
+    "userCount": 32,
+    "firstSeen": "2026-04-08T11:12:00Z",
+    "lastSeen": "2026-04-23T10:51:00Z",
+    "priority": "low",
+    "isUnhandled": false,
+    "permalink": "http://localhost:8000/organizations/sentry/issues/205/",
+    "metadata": {
+      "type": "ValidationError",
+      "value": "order_id must match ^ORD-[0-9]{8}$",
+      "filename": "routes/orders.js",
+      "function": "parseOrderId"
+    },
+    "project": { "name": "Orders Service", "slug": "orders-service", "platform": "node" },
+    "assignedTo": null
+  },
+  {
+    "id": "206",
+    "shortId": "ORDERS-206",
+    "title": "PerformanceIssue: checkout p95 elevated",
+    "culprit": "orders.checkout",
+    "level": "warning",
+    "status": "unresolved",
+    "count": "43",
+    "userCount": 29,
+    "firstSeen": "2026-04-16T13:08:00Z",
+    "lastSeen": "2026-04-22T21:40:00Z",
+    "priority": "medium",
+    "isUnhandled": false,
+    "permalink": "http://localhost:8000/organizations/sentry/issues/206/",
+    "metadata": {
+      "type": "PerformanceIssue",
+      "value": "checkout endpoint p95 > 200ms",
+      "filename": "routes/orders.js",
+      "function": "checkout"
+    },
+    "project": { "name": "Orders Service", "slug": "orders-service", "platform": "node" },
+    "assignedTo": null
+  }
+]

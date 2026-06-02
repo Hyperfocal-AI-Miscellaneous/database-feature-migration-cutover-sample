@@ -1,0 +1,19 @@
+# Hyperfocal Environment Configuration
+# This file configures the env-orchestrator for rollouts and local testing.
+
+version: "1.0"
+
+environment:
+  name: abc-self-managed-engine
+  description: "Implement PG timing stats feature, build, deploy to Docker sandbox, migrate data with CDC, cut over live workload."
+
+paths:
+  root: /hyperfocal/env
+  environmentDist: environment/dist
+  workspace: workspace
+
+agent:
+  awsAccess: false
+
+output:
+  schemaFile: environment/manifest-schema.json

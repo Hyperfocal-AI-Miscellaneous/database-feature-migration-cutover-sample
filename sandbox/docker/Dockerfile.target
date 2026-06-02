@@ -1,0 +1,48 @@
+FROM amazonlinux:2023
+
+ARG PG_VERSION=17.4
+
+# Install build deps, SSH, sudo, rsync
+RUN dnf install -y \
+    gcc make readline-devel zlib-devel flex bison perl \
+    openssl-devel libicu-devel wget tar patch git rsync \
+    openssh-server sudo passwd procps-ng && \
+    dnf clean all
+
+# Create ec2-user with passwordless sudo
+RUN useradd -m -s /bin/bash ec2-user && \
+    echo "ec2-user ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/ec2-user && \
+    chmod 0440 /etc/sudoers.d/ec2-user
+
+# Configure SSH
+RUN ssh-keygen -A && \
+    mkdir -p /home/ec2-user/.ssh && \
+    chmod 700 /home/ec2-user/.ssh && \
+    chown ec2-user:ec2-user /home/ec2-user/.ssh && \
+    sed -i 's/#PubkeyAuthentication yes/PubkeyAuthentication yes/' /etc/ssh/sshd_config && \
+    sed -i 's/#PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config && \
+    echo "PasswordAuthentication no" >> /etc/ssh/sshd_config
+
+# Download and build vanilla PG from source
+RUN cd /home/ec2-user && \
+    wget -q "https://ftp.postgresql.org/pub/source/v${PG_VERSION}/postgresql-${PG_VERSION}.tar.gz" && \
+    tar xzf "postgresql-${PG_VERSION}.tar.gz" && \
+    mv "postgresql-${PG_VERSION}" postgres-src && \
+    chown -R ec2-user:ec2-user postgres-src "postgresql-${PG_VERSION}.tar.gz" && \
+    mkdir -p /usr/local/pgsql && \
+    chown -R ec2-user:ec2-user /usr/local/pgsql && \
+    su - ec2-user -c 'cd ~/postgres-src && ./configure --prefix=/usr/local/pgsql && make -j$(nproc) && make install'
+
+# Create postgres user and data directory for initdb
+RUN id -u postgres &>/dev/null || useradd -r -s /bin/bash postgres && \
+    mkdir -p /usr/local/pgsql/data && \
+    chown postgres:postgres /usr/local/pgsql/data
+
+# Pre-create directories
+RUN mkdir -p /etc/hyperfocal && chmod 777 /etc/hyperfocal
+
+COPY entrypoint-target.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+EXPOSE 22 5432
+CMD ["/entrypoint.sh"]
