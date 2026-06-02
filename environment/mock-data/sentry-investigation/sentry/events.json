@@ -1,0 +1,850 @@
+[
+  {
+    "eventID": "a101000000000000000000000000000001",
+    "groupID": "101",
+    "title": "Slow DB query: GET /orders/by-customer p95 > 500ms",
+    "culprit": "orders.listOrdersByCustomer",
+    "dateCreated": "2026-04-23T10:58:00Z",
+    "platform": "node",
+    "level": "warning",
+    "tags": [
+      {"key": "level", "value": "warning"},
+      {"key": "environment", "value": "production"},
+      {"key": "server_name", "value": "orders-api-prod-02"},
+      {"key": "runtime", "value": "node 20.11.0"},
+      {"key": "url", "value": "/orders/by-customer?customer_id=7"},
+      {"key": "transaction", "value": "GET /orders/by-customer"},
+      {"key": "customer_id", "value": "7"},
+      {"key": "duration_ms", "value": "842"},
+      {"key": "release", "value": "2026.04.22-01"}
+    ],
+    "contexts": {
+      "runtime": {"name": "node", "version": "20.11.0"},
+      "os": {"name": "Linux", "version": "6.1.0"},
+      "trace": {"op": "http.server", "description": "GET /orders/by-customer", "data": {"http.method": "GET", "http.status_code": 200}}
+    },
+    "entries": [
+      {"type": "message", "data": {"formatted": "Query took 842ms (threshold 100ms). Rows returned: 48."}},
+      {"type": "breadcrumbs", "data": {"values": [
+        {"category": "http", "level": "info", "message": "GET /orders/by-customer?customer_id=7", "timestamp": "2026-04-23T10:57:59.100Z", "type": "http", "data": {"method": "GET", "url": "/orders/by-customer?customer_id=7", "status_code": "200"}},
+        {"category": "query", "level": "warning", "message": "Slow query (842ms): SELECT o.id, o.customer_id, o.quantity, i.name, i.value FROM orders o JOIN items i ON o.item_id = i.id WHERE o.customer_id = $1 ORDER BY o.created_at DESC", "timestamp": "2026-04-23T10:57:59.942Z", "type": "default", "data": {"db.system": "postgresql", "db.operation": "select", "db.statement": "SELECT o.id, o.customer_id, o.quantity, i.name, i.value FROM orders o JOIN items i ON o.item_id = i.id WHERE o.customer_id = $1 ORDER BY o.created_at DESC"}}
+      ]}}
+    ]
+  },
+  {
+    "eventID": "a101000000000000000000000000000002",
+    "groupID": "101",
+    "title": "Slow DB query: GET /orders/by-customer p95 > 500ms",
+    "culprit": "orders.listOrdersByCustomer",
+    "dateCreated": "2026-04-23T10:54:12Z",
+    "platform": "node",
+    "level": "warning",
+    "tags": [
+      {"key": "level", "value": "warning"},
+      {"key": "environment", "value": "production"},
+      {"key": "server_name", "value": "orders-api-prod-01"},
+      {"key": "url", "value": "/orders/by-customer?customer_id=3"},
+      {"key": "transaction", "value": "GET /orders/by-customer"},
+      {"key": "customer_id", "value": "3"},
+      {"key": "duration_ms", "value": "761"},
+      {"key": "release", "value": "2026.04.22-01"}
+    ],
+    "entries": [
+      {"type": "message", "data": {"formatted": "Query took 761ms. Rows: 31."}},
+      {"type": "breadcrumbs", "data": {"values": [
+        {"category": "query", "level": "warning", "data": {"db.system": "postgresql", "db.statement": "SELECT o.id, o.customer_id, o.quantity, i.name, i.value FROM orders o JOIN items i ON o.item_id = i.id WHERE o.customer_id = $1 ORDER BY o.created_at DESC"}}
+      ]}}
+    ]
+  },
+  {
+    "eventID": "a101000000000000000000000000000003",
+    "groupID": "101",
+    "title": "Slow DB query: GET /orders/by-customer p95 > 500ms",
+    "culprit": "orders.listOrdersByCustomer",
+    "dateCreated": "2026-04-23T10:49:33Z",
+    "platform": "node",
+    "level": "warning",
+    "tags": [
+      {"key": "environment", "value": "production"},
+      {"key": "server_name", "value": "orders-api-prod-02"},
+      {"key": "url", "value": "/orders/by-customer?customer_id=12"},
+      {"key": "transaction", "value": "GET /orders/by-customer"},
+      {"key": "customer_id", "value": "12"},
+      {"key": "duration_ms", "value": "903"},
+      {"key": "release", "value": "2026.04.22-01"}
+    ]
+  },
+  {
+    "eventID": "a101000000000000000000000000000004",
+    "groupID": "101",
+    "title": "Slow DB query: GET /orders/by-customer p95 > 500ms",
+    "culprit": "orders.listOrdersByCustomer",
+    "dateCreated": "2026-04-23T10:42:18Z",
+    "platform": "node",
+    "level": "warning",
+    "tags": [
+      {"key": "environment", "value": "production"},
+      {"key": "url", "value": "/orders/by-customer?customer_id=1"},
+      {"key": "transaction", "value": "GET /orders/by-customer"},
+      {"key": "customer_id", "value": "1"},
+      {"key": "duration_ms", "value": "612"}
+    ]
+  },
+  {
+    "eventID": "a101000000000000000000000000000005",
+    "groupID": "101",
+    "title": "Slow DB query: GET /orders/by-customer p95 > 500ms",
+    "culprit": "orders.listOrdersByCustomer",
+    "dateCreated": "2026-04-23T10:36:44Z",
+    "platform": "node",
+    "level": "warning",
+    "tags": [
+      {"key": "environment", "value": "production"},
+      {"key": "url", "value": "/orders/by-customer?customer_id=22"},
+      {"key": "transaction", "value": "GET /orders/by-customer"},
+      {"key": "customer_id", "value": "22"},
+      {"key": "duration_ms", "value": "548"},
+      {"key": "release", "value": "2026.04.22-01"}
+    ]
+  },
+  {
+    "eventID": "a101000000000000000000000000000006",
+    "groupID": "101",
+    "title": "Slow DB query: GET /orders/by-customer p95 > 500ms",
+    "culprit": "orders.listOrdersByCustomer",
+    "dateCreated": "2026-04-23T10:28:07Z",
+    "platform": "node",
+    "level": "warning",
+    "tags": [
+      {"key": "environment", "value": "production"},
+      {"key": "url", "value": "/orders/by-customer?customer_id=44"},
+      {"key": "transaction", "value": "GET /orders/by-customer"},
+      {"key": "customer_id", "value": "44"},
+      {"key": "duration_ms", "value": "719"}
+    ]
+  },
+  {
+    "eventID": "a101000000000000000000000000000007",
+    "groupID": "101",
+    "title": "Slow DB query: GET /orders/by-customer p95 > 500ms",
+    "culprit": "orders.listOrdersByCustomer",
+    "dateCreated": "2026-04-23T10:21:52Z",
+    "platform": "node",
+    "level": "warning",
+    "tags": [
+      {"key": "environment", "value": "production"},
+      {"key": "url", "value": "/orders/by-customer?customer_id=7"},
+      {"key": "transaction", "value": "GET /orders/by-customer"},
+      {"key": "customer_id", "value": "7"},
+      {"key": "duration_ms", "value": "834"},
+      {"key": "release", "value": "2026.04.22-01"}
+    ]
+  },
+  {
+    "eventID": "a101000000000000000000000000000008",
+    "groupID": "101",
+    "title": "Slow DB query: GET /orders/by-customer p95 > 500ms",
+    "culprit": "orders.listOrdersByCustomer",
+    "dateCreated": "2026-04-23T10:15:19Z",
+    "platform": "node",
+    "level": "warning",
+    "tags": [
+      {"key": "environment", "value": "production"},
+      {"key": "url", "value": "/orders/by-customer?customer_id=3"},
+      {"key": "transaction", "value": "GET /orders/by-customer"},
+      {"key": "customer_id", "value": "3"},
+      {"key": "duration_ms", "value": "488"}
+    ]
+  },
+  {
+    "eventID": "a101000000000000000000000000000009",
+    "groupID": "101",
+    "title": "Slow DB query: GET /orders/by-customer p95 > 500ms",
+    "culprit": "orders.listOrdersByCustomer",
+    "dateCreated": "2026-04-23T10:08:41Z",
+    "platform": "node",
+    "level": "warning",
+    "tags": [
+      {"key": "environment", "value": "production"},
+      {"key": "url", "value": "/orders/by-customer?customer_id=12"},
+      {"key": "transaction", "value": "GET /orders/by-customer"},
+      {"key": "customer_id", "value": "12"},
+      {"key": "duration_ms", "value": "895"},
+      {"key": "release", "value": "2026.04.22-01"}
+    ]
+  },
+  {
+    "eventID": "a101000000000000000000000000000010",
+    "groupID": "101",
+    "title": "Slow DB query: GET /orders/by-customer p95 > 500ms",
+    "culprit": "orders.listOrdersByCustomer",
+    "dateCreated": "2026-04-23T10:02:14Z",
+    "platform": "node",
+    "level": "warning",
+    "tags": [
+      {"key": "environment", "value": "production"},
+      {"key": "url", "value": "/orders/by-customer?customer_id=1"},
+      {"key": "transaction", "value": "GET /orders/by-customer"},
+      {"key": "customer_id", "value": "1"},
+      {"key": "duration_ms", "value": "514"}
+    ]
+  },
+  {
+    "eventID": "a101000000000000000000000000000011",
+    "groupID": "101",
+    "title": "Slow DB query: GET /orders/by-customer p95 > 500ms",
+    "culprit": "orders.listOrdersByCustomer",
+    "dateCreated": "2026-04-23T09:54:07Z",
+    "platform": "node",
+    "level": "warning",
+    "tags": [
+      {"key": "environment", "value": "production"},
+      {"key": "url", "value": "/orders/by-customer?customer_id=22"},
+      {"key": "transaction", "value": "GET /orders/by-customer"},
+      {"key": "customer_id", "value": "22"},
+      {"key": "duration_ms", "value": "461"},
+      {"key": "release", "value": "2026.04.22-01"}
+    ]
+  },
+  {
+    "eventID": "a101000000000000000000000000000012",
+    "groupID": "101",
+    "title": "Slow DB query: GET /orders/by-customer p95 > 500ms",
+    "culprit": "orders.listOrdersByCustomer",
+    "dateCreated": "2026-04-23T09:48:39Z",
+    "platform": "node",
+    "level": "warning",
+    "tags": [
+      {"key": "environment", "value": "production"},
+      {"key": "url", "value": "/orders/by-customer?customer_id=44"},
+      {"key": "transaction", "value": "GET /orders/by-customer"},
+      {"key": "customer_id", "value": "44"},
+      {"key": "duration_ms", "value": "784"}
+    ]
+  },
+  {
+    "eventID": "a101000000000000000000000000000013",
+    "groupID": "101",
+    "title": "Slow DB query: GET /orders/by-customer p95 > 500ms",
+    "culprit": "orders.listOrdersByCustomer",
+    "dateCreated": "2026-04-23T09:40:12Z",
+    "platform": "node",
+    "level": "warning",
+    "tags": [
+      {"key": "environment", "value": "production"},
+      {"key": "url", "value": "/orders/by-customer?customer_id=7"},
+      {"key": "transaction", "value": "GET /orders/by-customer"},
+      {"key": "customer_id", "value": "7"},
+      {"key": "duration_ms", "value": "920"},
+      {"key": "release", "value": "2026.04.22-01"}
+    ]
+  },
+  {
+    "eventID": "a101000000000000000000000000000014",
+    "groupID": "101",
+    "title": "Slow DB query: GET /orders/by-customer p95 > 500ms",
+    "culprit": "orders.listOrdersByCustomer",
+    "dateCreated": "2026-04-23T09:33:55Z",
+    "platform": "node",
+    "level": "warning",
+    "tags": [
+      {"key": "environment", "value": "production"},
+      {"key": "url", "value": "/orders/by-customer?customer_id=3"},
+      {"key": "transaction", "value": "GET /orders/by-customer"},
+      {"key": "customer_id", "value": "3"},
+      {"key": "duration_ms", "value": "602"}
+    ]
+  },
+  {
+    "eventID": "a101000000000000000000000000000015",
+    "groupID": "101",
+    "title": "Slow DB query: GET /orders/by-customer p95 > 500ms",
+    "culprit": "orders.listOrdersByCustomer",
+    "dateCreated": "2026-04-23T09:27:18Z",
+    "platform": "node",
+    "level": "warning",
+    "tags": [
+      {"key": "environment", "value": "production"},
+      {"key": "url", "value": "/orders/by-customer?customer_id=12"},
+      {"key": "transaction", "value": "GET /orders/by-customer"},
+      {"key": "customer_id", "value": "12"},
+      {"key": "duration_ms", "value": "711"},
+      {"key": "release", "value": "2026.04.22-01"}
+    ]
+  },
+  {
+    "eventID": "a101000000000000000000000000000016",
+    "groupID": "101",
+    "title": "Slow DB query: GET /orders/by-customer p95 > 500ms",
+    "culprit": "orders.listOrdersByCustomer",
+    "dateCreated": "2026-04-23T09:20:44Z",
+    "platform": "node",
+    "level": "warning",
+    "tags": [
+      {"key": "environment", "value": "production"},
+      {"key": "url", "value": "/orders/by-customer?customer_id=1"},
+      {"key": "transaction", "value": "GET /orders/by-customer"},
+      {"key": "customer_id", "value": "1"},
+      {"key": "duration_ms", "value": "455"}
+    ]
+  },
+  {
+    "eventID": "a101000000000000000000000000000017",
+    "groupID": "101",
+    "title": "Slow DB query: GET /orders/by-customer p95 > 500ms",
+    "culprit": "orders.listOrdersByCustomer",
+    "dateCreated": "2026-04-23T09:14:02Z",
+    "platform": "node",
+    "level": "warning",
+    "tags": [
+      {"key": "environment", "value": "production"},
+      {"key": "url", "value": "/orders/by-customer?customer_id=7"},
+      {"key": "transaction", "value": "GET /orders/by-customer"},
+      {"key": "customer_id", "value": "7"},
+      {"key": "duration_ms", "value": "867"},
+      {"key": "release", "value": "2026.04.22-01"}
+    ]
+  },
+  {
+    "eventID": "a101000000000000000000000000000018",
+    "groupID": "101",
+    "title": "Slow DB query: GET /orders/by-customer p95 > 500ms",
+    "culprit": "orders.listOrdersByCustomer",
+    "dateCreated": "2026-04-23T09:06:37Z",
+    "platform": "node",
+    "level": "warning",
+    "tags": [
+      {"key": "environment", "value": "production"},
+      {"key": "url", "value": "/orders/by-customer?customer_id=22"},
+      {"key": "transaction", "value": "GET /orders/by-customer"},
+      {"key": "customer_id", "value": "22"},
+      {"key": "duration_ms", "value": "509"},
+      {"key": "release", "value": "2026.04.22-01"}
+    ]
+  },
+  {
+    "eventID": "a101000000000000000000000000000019",
+    "groupID": "101",
+    "title": "Slow DB query: GET /orders/by-customer p95 > 500ms",
+    "culprit": "orders.listOrdersByCustomer",
+    "dateCreated": "2026-04-23T08:59:20Z",
+    "platform": "node",
+    "level": "warning",
+    "tags": [
+      {"key": "environment", "value": "production"},
+      {"key": "url", "value": "/orders/by-customer?customer_id=44"},
+      {"key": "transaction", "value": "GET /orders/by-customer"},
+      {"key": "customer_id", "value": "44"},
+      {"key": "duration_ms", "value": "777"}
+    ]
+  },
+  {
+    "eventID": "a101000000000000000000000000000020",
+    "groupID": "101",
+    "title": "Slow DB query: GET /orders/by-customer p95 > 500ms",
+    "culprit": "orders.listOrdersByCustomer",
+    "dateCreated": "2026-04-23T08:51:04Z",
+    "platform": "node",
+    "level": "warning",
+    "tags": [
+      {"key": "environment", "value": "production"},
+      {"key": "url", "value": "/orders/by-customer?customer_id=3"},
+      {"key": "transaction", "value": "GET /orders/by-customer"},
+      {"key": "customer_id", "value": "3"},
+      {"key": "duration_ms", "value": "680"}
+    ]
+  },
+  {
+    "eventID": "a101000000000000000000000000000021",
+    "groupID": "101",
+    "title": "Slow DB query: GET /orders/by-customer p95 > 500ms",
+    "culprit": "orders.listOrdersByCustomer",
+    "dateCreated": "2026-04-23T08:44:11Z",
+    "platform": "node",
+    "level": "warning",
+    "tags": [
+      {"key": "environment", "value": "production"},
+      {"key": "url", "value": "/orders/by-customer?customer_id=1"},
+      {"key": "transaction", "value": "GET /orders/by-customer"},
+      {"key": "customer_id", "value": "1"},
+      {"key": "duration_ms", "value": "473"},
+      {"key": "release", "value": "2026.04.22-01"}
+    ]
+  },
+  {
+    "eventID": "a101000000000000000000000000000022",
+    "groupID": "101",
+    "title": "Slow DB query: GET /orders/by-customer p95 > 500ms",
+    "culprit": "orders.listOrdersByCustomer",
+    "dateCreated": "2026-04-23T08:36:30Z",
+    "platform": "node",
+    "level": "warning",
+    "tags": [
+      {"key": "environment", "value": "production"},
+      {"key": "url", "value": "/orders/by-customer?customer_id=12"},
+      {"key": "transaction", "value": "GET /orders/by-customer"},
+      {"key": "customer_id", "value": "12"},
+      {"key": "duration_ms", "value": "831"},
+      {"key": "release", "value": "2026.04.22-01"}
+    ]
+  },
+  {
+    "eventID": "a101000000000000000000000000000023",
+    "groupID": "101",
+    "title": "Slow DB query: GET /orders/by-customer p95 > 500ms",
+    "culprit": "orders.listOrdersByCustomer",
+    "dateCreated": "2026-04-23T08:27:59Z",
+    "platform": "node",
+    "level": "warning",
+    "tags": [
+      {"key": "environment", "value": "production"},
+      {"key": "url", "value": "/orders/by-customer?customer_id=22"},
+      {"key": "transaction", "value": "GET /orders/by-customer"},
+      {"key": "customer_id", "value": "22"},
+      {"key": "duration_ms", "value": "596"}
+    ]
+  },
+  {
+    "eventID": "a101000000000000000000000000000024",
+    "groupID": "101",
+    "title": "Slow DB query: GET /orders/by-customer p95 > 500ms",
+    "culprit": "orders.listOrdersByCustomer",
+    "dateCreated": "2026-04-23T08:20:45Z",
+    "platform": "node",
+    "level": "warning",
+    "tags": [
+      {"key": "environment", "value": "production"},
+      {"key": "url", "value": "/orders/by-customer?customer_id=7"},
+      {"key": "transaction", "value": "GET /orders/by-customer"},
+      {"key": "customer_id", "value": "7"},
+      {"key": "duration_ms", "value": "743"},
+      {"key": "release", "value": "2026.04.22-01"}
+    ]
+  },
+  {
+    "eventID": "a101000000000000000000000000000025",
+    "groupID": "101",
+    "title": "Slow DB query: GET /orders/by-customer p95 > 500ms",
+    "culprit": "orders.listOrdersByCustomer",
+    "dateCreated": "2026-04-23T08:12:33Z",
+    "platform": "node",
+    "level": "warning",
+    "tags": [
+      {"key": "environment", "value": "production"},
+      {"key": "url", "value": "/orders/by-customer?customer_id=44"},
+      {"key": "transaction", "value": "GET /orders/by-customer"},
+      {"key": "customer_id", "value": "44"},
+      {"key": "duration_ms", "value": "512"},
+      {"key": "release", "value": "2026.04.22-01"}
+    ]
+  },
+  {
+    "eventID": "a102000000000000000000000000000001",
+    "groupID": "102",
+    "title": "Slow DB query: GET /orders/search p95 > 300ms",
+    "culprit": "orders.searchOrders",
+    "dateCreated": "2026-04-17T04:41:00Z",
+    "platform": "node",
+    "level": "warning",
+    "tags": [
+      {"key": "environment", "value": "production"},
+      {"key": "transaction", "value": "GET /orders/search"},
+      {"key": "duration_ms", "value": "318"},
+      {"key": "release", "value": "2026.04.16-02"}
+    ],
+    "entries": [
+      {"type": "message", "data": {"formatted": "Query took 318ms on /orders/search. Fixed in 2026.04.17-01 via trigram index."}},
+      {"type": "breadcrumbs", "data": {"values": [
+        {"category": "query", "data": {"db.system": "postgresql", "db.statement": "SELECT o.id, o.customer_id, i.name FROM orders o JOIN items i ON o.item_id = i.id WHERE i.name ILIKE $1"}}
+      ]}}
+    ]
+  },
+  {
+    "eventID": "a102000000000000000000000000000002",
+    "groupID": "102",
+    "title": "Slow DB query: GET /orders/search p95 > 300ms",
+    "culprit": "orders.searchOrders",
+    "dateCreated": "2026-04-16T14:18:00Z",
+    "platform": "node",
+    "level": "warning",
+    "tags": [
+      {"key": "environment", "value": "production"},
+      {"key": "transaction", "value": "GET /orders/search"},
+      {"key": "duration_ms", "value": "412"},
+      {"key": "release", "value": "2026.04.16-02"}
+    ]
+  },
+  {
+    "eventID": "a102000000000000000000000000000003",
+    "groupID": "102",
+    "title": "Slow DB query: GET /orders/search p95 > 300ms",
+    "culprit": "orders.searchOrders",
+    "dateCreated": "2026-04-16T08:02:00Z",
+    "platform": "node",
+    "level": "warning",
+    "tags": [
+      {"key": "environment", "value": "production"},
+      {"key": "transaction", "value": "GET /orders/search"},
+      {"key": "duration_ms", "value": "489"}
+    ]
+  },
+  {
+    "eventID": "a102000000000000000000000000000004",
+    "groupID": "102",
+    "title": "Slow DB query: GET /orders/search p95 > 300ms",
+    "culprit": "orders.searchOrders",
+    "dateCreated": "2026-04-15T21:45:00Z",
+    "platform": "node",
+    "level": "warning",
+    "tags": [
+      {"key": "environment", "value": "production"},
+      {"key": "transaction", "value": "GET /orders/search"},
+      {"key": "duration_ms", "value": "367"}
+    ]
+  },
+  {
+    "eventID": "a103000000000000000000000000000001",
+    "groupID": "103",
+    "title": "JsonWebTokenError: invalid signature",
+    "culprit": "auth.verifyToken",
+    "dateCreated": "2026-04-23T09:14:00Z",
+    "platform": "node",
+    "level": "error",
+    "tags": [
+      {"key": "environment", "value": "production"},
+      {"key": "url", "value": "/orders/summary"},
+      {"key": "transaction", "value": "GET /orders/summary"}
+    ],
+    "entries": [
+      {"type": "exception", "data": {"values": [
+        {"type": "JsonWebTokenError", "value": "invalid signature", "module": "jsonwebtoken", "mechanism": {"type": "generic", "handled": true}, "stacktrace": {"frames": [{"filename": "middleware/auth.js", "function": "verifyToken", "lineNo": 42, "inApp": true}]}}
+      ]}}
+    ]
+  },
+  {
+    "eventID": "a103000000000000000000000000000002",
+    "groupID": "103",
+    "title": "JsonWebTokenError: invalid signature",
+    "culprit": "auth.verifyToken",
+    "dateCreated": "2026-04-23T08:12:00Z",
+    "platform": "node",
+    "level": "error",
+    "tags": [{"key": "environment", "value": "production"}]
+  },
+  {
+    "eventID": "a103000000000000000000000000000003",
+    "groupID": "103",
+    "title": "JsonWebTokenError: invalid signature",
+    "culprit": "auth.verifyToken",
+    "dateCreated": "2026-04-23T06:33:00Z",
+    "platform": "node",
+    "level": "error",
+    "tags": [{"key": "environment", "value": "production"}]
+  },
+  {
+    "eventID": "a103000000000000000000000000000004",
+    "groupID": "103",
+    "title": "JsonWebTokenError: invalid signature",
+    "culprit": "auth.verifyToken",
+    "dateCreated": "2026-04-23T04:19:00Z",
+    "platform": "node",
+    "level": "error",
+    "tags": [{"key": "environment", "value": "production"}]
+  },
+  {
+    "eventID": "a103000000000000000000000000000005",
+    "groupID": "103",
+    "title": "JsonWebTokenError: invalid signature",
+    "culprit": "auth.verifyToken",
+    "dateCreated": "2026-04-22T22:48:00Z",
+    "platform": "node",
+    "level": "error",
+    "tags": [{"key": "environment", "value": "production"}]
+  },
+  {
+    "eventID": "a103000000000000000000000000000006",
+    "groupID": "103",
+    "title": "JsonWebTokenError: invalid signature",
+    "culprit": "auth.verifyToken",
+    "dateCreated": "2026-04-22T17:21:00Z",
+    "platform": "node",
+    "level": "error",
+    "tags": [{"key": "environment", "value": "production"}]
+  },
+  {
+    "eventID": "a103000000000000000000000000000007",
+    "groupID": "103",
+    "title": "JsonWebTokenError: invalid signature",
+    "culprit": "auth.verifyToken",
+    "dateCreated": "2026-04-22T11:08:00Z",
+    "platform": "node",
+    "level": "error",
+    "tags": [{"key": "environment", "value": "production"}]
+  },
+  {
+    "eventID": "a103000000000000000000000000000008",
+    "groupID": "103",
+    "title": "JsonWebTokenError: invalid signature",
+    "culprit": "auth.verifyToken",
+    "dateCreated": "2026-04-21T20:52:00Z",
+    "platform": "node",
+    "level": "error",
+    "tags": [{"key": "environment", "value": "production"}]
+  },
+  {
+    "eventID": "a104000000000000000000000000000001",
+    "groupID": "104",
+    "title": "ConnectionTimeoutError: Redis session cache",
+    "culprit": "sessions.getSessionCached",
+    "dateCreated": "2026-04-23T02:10:00Z",
+    "platform": "node",
+    "level": "error",
+    "tags": [
+      {"key": "environment", "value": "production"},
+      {"key": "server_name", "value": "orders-api-prod-02"}
+    ],
+    "entries": [
+      {"type": "exception", "data": {"values": [
+        {"type": "ConnectionTimeoutError", "value": "Connection timed out after 5000ms", "module": "ioredis", "stacktrace": {"frames": [{"filename": "cache/sessions.js", "function": "getSessionCached", "lineNo": 18, "inApp": true}]}}
+      ]}}
+    ]
+  },
+  {
+    "eventID": "a104000000000000000000000000000002",
+    "groupID": "104",
+    "title": "ConnectionTimeoutError: Redis session cache",
+    "culprit": "sessions.getSessionCached",
+    "dateCreated": "2026-04-22T19:04:00Z",
+    "platform": "node",
+    "level": "error",
+    "tags": [{"key": "environment", "value": "production"}]
+  },
+  {
+    "eventID": "a104000000000000000000000000000003",
+    "groupID": "104",
+    "title": "ConnectionTimeoutError: Redis session cache",
+    "culprit": "sessions.getSessionCached",
+    "dateCreated": "2026-04-21T09:47:00Z",
+    "platform": "node",
+    "level": "error",
+    "tags": [{"key": "environment", "value": "production"}]
+  },
+  {
+    "eventID": "a105000000000000000000000000000001",
+    "groupID": "105",
+    "title": "SMTPConnectionError: Connection refused smtp.internal.example:587",
+    "culprit": "notifications.sendOrderConfirmation",
+    "dateCreated": "2026-04-22T20:45:00Z",
+    "platform": "node",
+    "level": "warning",
+    "tags": [{"key": "environment", "value": "production"}],
+    "entries": [
+      {"type": "exception", "data": {"values": [
+        {"type": "SMTPConnectionError", "value": "Connection refused: smtp.internal.example:587", "module": "nodemailer", "stacktrace": {"frames": [{"filename": "notifications/email.js", "function": "sendOrderConfirmation", "lineNo": 61, "inApp": true}]}}
+      ]}}
+    ]
+  },
+  {
+    "eventID": "a106000000000000000000000000000001",
+    "groupID": "106",
+    "title": "UnhandledPromiseRejection in background worker",
+    "culprit": "debug.promiseTrace",
+    "dateCreated": "2026-04-23T10:29:00Z",
+    "platform": "node",
+    "level": "error",
+    "tags": [
+      {"key": "environment", "value": "staging"},
+      {"key": "server_name", "value": "orders-api-staging-01"}
+    ],
+    "entries": [
+      {"type": "exception", "data": {"values": [
+        {"type": "UnhandledPromiseRejection", "value": "TypeError: Cannot read properties of undefined (reading 'sku')", "stacktrace": {"frames": [{"filename": "workers/debugTracer.js", "function": "promiseTrace", "lineNo": 77, "inApp": true}]}}
+      ]}}
+    ]
+  },
+  {
+    "eventID": "a106000000000000000000000000000002",
+    "groupID": "106",
+    "title": "UnhandledPromiseRejection in background worker",
+    "culprit": "debug.promiseTrace",
+    "dateCreated": "2026-04-23T09:47:00Z",
+    "platform": "node",
+    "level": "error",
+    "tags": [{"key": "environment", "value": "staging"}]
+  },
+  {
+    "eventID": "a106000000000000000000000000000003",
+    "groupID": "106",
+    "title": "UnhandledPromiseRejection in background worker",
+    "culprit": "debug.promiseTrace",
+    "dateCreated": "2026-04-23T08:55:00Z",
+    "platform": "node",
+    "level": "error",
+    "tags": [{"key": "environment", "value": "staging"}]
+  },
+  {
+    "eventID": "a106000000000000000000000000000004",
+    "groupID": "106",
+    "title": "UnhandledPromiseRejection in background worker",
+    "culprit": "debug.promiseTrace",
+    "dateCreated": "2026-04-23T08:07:00Z",
+    "platform": "node",
+    "level": "error",
+    "tags": [{"key": "environment", "value": "staging"}]
+  },
+  {
+    "eventID": "a106000000000000000000000000000005",
+    "groupID": "106",
+    "title": "UnhandledPromiseRejection in background worker",
+    "culprit": "debug.promiseTrace",
+    "dateCreated": "2026-04-23T07:19:00Z",
+    "platform": "node",
+    "level": "error",
+    "tags": [{"key": "environment", "value": "staging"}]
+  },
+  {
+    "eventID": "a106000000000000000000000000000006",
+    "groupID": "106",
+    "title": "UnhandledPromiseRejection in background worker",
+    "culprit": "debug.promiseTrace",
+    "dateCreated": "2026-04-23T06:33:00Z",
+    "platform": "node",
+    "level": "error",
+    "tags": [{"key": "environment", "value": "staging"}]
+  },
+  {
+    "eventID": "a106000000000000000000000000000007",
+    "groupID": "106",
+    "title": "UnhandledPromiseRejection in background worker",
+    "culprit": "debug.promiseTrace",
+    "dateCreated": "2026-04-23T05:52:00Z",
+    "platform": "node",
+    "level": "error",
+    "tags": [{"key": "environment", "value": "staging"}]
+  },
+  {
+    "eventID": "a106000000000000000000000000000008",
+    "groupID": "106",
+    "title": "UnhandledPromiseRejection in background worker",
+    "culprit": "debug.promiseTrace",
+    "dateCreated": "2026-04-23T05:08:00Z",
+    "platform": "node",
+    "level": "error",
+    "tags": [{"key": "environment", "value": "staging"}]
+  },
+  {
+    "eventID": "a106000000000000000000000000000009",
+    "groupID": "106",
+    "title": "UnhandledPromiseRejection in background worker",
+    "culprit": "debug.promiseTrace",
+    "dateCreated": "2026-04-23T04:21:00Z",
+    "platform": "node",
+    "level": "error",
+    "tags": [{"key": "environment", "value": "staging"}]
+  },
+  {
+    "eventID": "a106000000000000000000000000000010",
+    "groupID": "106",
+    "title": "UnhandledPromiseRejection in background worker",
+    "culprit": "debug.promiseTrace",
+    "dateCreated": "2026-04-23T03:38:00Z",
+    "platform": "node",
+    "level": "error",
+    "tags": [{"key": "environment", "value": "staging"}]
+  },
+  {
+    "eventID": "a106000000000000000000000000000011",
+    "groupID": "106",
+    "title": "UnhandledPromiseRejection in background worker",
+    "culprit": "debug.promiseTrace",
+    "dateCreated": "2026-04-23T02:55:00Z",
+    "platform": "node",
+    "level": "error",
+    "tags": [{"key": "environment", "value": "staging"}]
+  },
+  {
+    "eventID": "a106000000000000000000000000000012",
+    "groupID": "106",
+    "title": "UnhandledPromiseRejection in background worker",
+    "culprit": "debug.promiseTrace",
+    "dateCreated": "2026-04-23T02:11:00Z",
+    "platform": "node",
+    "level": "error",
+    "tags": [{"key": "environment", "value": "staging"}]
+  },
+  {
+    "eventID": "a106000000000000000000000000000013",
+    "groupID": "106",
+    "title": "UnhandledPromiseRejection in background worker",
+    "culprit": "debug.promiseTrace",
+    "dateCreated": "2026-04-23T01:24:00Z",
+    "platform": "node",
+    "level": "error",
+    "tags": [{"key": "environment", "value": "staging"}]
+  },
+  {
+    "eventID": "a106000000000000000000000000000014",
+    "groupID": "106",
+    "title": "UnhandledPromiseRejection in background worker",
+    "culprit": "debug.promiseTrace",
+    "dateCreated": "2026-04-23T00:41:00Z",
+    "platform": "node",
+    "level": "error",
+    "tags": [{"key": "environment", "value": "staging"}]
+  },
+  {
+    "eventID": "a106000000000000000000000000000015",
+    "groupID": "106",
+    "title": "UnhandledPromiseRejection in background worker",
+    "culprit": "debug.promiseTrace",
+    "dateCreated": "2026-04-22T23:55:00Z",
+    "platform": "node",
+    "level": "error",
+    "tags": [{"key": "environment", "value": "staging"}]
+  },
+  {
+    "eventID": "a107000000000000000000000000000001",
+    "groupID": "107",
+    "title": "PerformanceIssue: N+1 detected in /orders/summary",
+    "culprit": "orders.getSummary",
+    "dateCreated": "2026-04-23T07:58:00Z",
+    "platform": "node",
+    "level": "warning",
+    "tags": [
+      {"key": "environment", "value": "production"},
+      {"key": "transaction", "value": "GET /orders/summary"},
+      {"key": "duration_ms", "value": "247"}
+    ],
+    "entries": [
+      {"type": "message", "data": {"formatted": "N+1 detected: 23 child queries for SELECT * FROM items WHERE id = $1 issued within /orders/summary handler."}}
+    ]
+  },
+  {
+    "eventID": "a107000000000000000000000000000002",
+    "groupID": "107",
+    "title": "PerformanceIssue: N+1 detected in /orders/summary",
+    "culprit": "orders.getSummary",
+    "dateCreated": "2026-04-22T14:32:00Z",
+    "platform": "node",
+    "level": "warning",
+    "tags": [
+      {"key": "environment", "value": "production"},
+      {"key": "transaction", "value": "GET /orders/summary"},
+      {"key": "duration_ms", "value": "213"}
+    ]
+  },
+  {
+    "eventID": "a107000000000000000000000000000003",
+    "groupID": "107",
+    "title": "PerformanceIssue: N+1 detected in /orders/summary",
+    "culprit": "orders.getSummary",
+    "dateCreated": "2026-04-21T09:08:00Z",
+    "platform": "node",
+    "level": "warning",
+    "tags": [
+      {"key": "environment", "value": "production"},
+      {"key": "transaction", "value": "GET /orders/summary"},
+      {"key": "duration_ms", "value": "189"}
+    ]
+  }
+]

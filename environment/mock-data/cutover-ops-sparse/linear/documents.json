@@ -1,0 +1,16 @@
+[
+  {
+    "id": "doc-runbook-cluster-cutover-sparse",
+    "title": "PG Cluster Cutover (operations)",
+    "icon": "📘",
+    "color": "#5e6ad2",
+    "content": "# PG Cluster Cutover Runbook\n\nReusable operational procedure. The feature being shipped is described\nin the tracking ticket.\n\nBuild with `--with-extra-version=-hyperfocal` (team convention so on-call\ncan spot patched binaries via `SELECT version()`). Use logical replication\n(don't lose data — workload has live writes). Pre-flight source for stale\nslots/publications and drop them. Schema-sync target before subscribing. Wait for replication to catch up. Cut\nover via pgbouncer (PAUSE → sed → RELOAD → RESUME; no KILL). Clean up\nthe replication path on both sides after.\n\nMove the tracking ticket through Todo → In Progress → In Review →\nDone as you progress. Before marking Done, post the final manifest as\na comment on the ticket — the comment must include the target host,\nthe pg binary path, and the source instance identifier.\n",
+    "slugId": "runbook-pg-cluster-cutover-sparse",
+    "url": "https://linear.app/hyperfocal/document/runbook-pg-cluster-cutover-sparse",
+    "createdAt": "2026-04-22T09:00:00.000Z",
+    "updatedAt": "2026-04-28T12:00:00.000Z",
+    "creator": { "id": "user-002", "name": "Priya Menon" },
+    "project": { "id": "proj-cutover", "name": "PG17 Upgrade + Observability" },
+    "team": { "id": "team-dba", "name": "DBA", "key": "DBA" }
+  }
+]

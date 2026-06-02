@@ -1,0 +1,214 @@
+services:
+  source:
+    build:
+      context: .
+      dockerfile: Dockerfile.source
+    container_name: hyperfocal-source
+    hostname: source
+    labels:
+      project: hyperfocal
+      role: source
+    networks:
+      hyperfocal:
+        ipv4_address: 172.20.0.10
+    healthcheck:
+      test: ["CMD", "pg_isready", "-h", "localhost"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  target:
+    build:
+      context: .
+      dockerfile: Dockerfile.target
+      args:
+        PG_VERSION: "${PG_VERSION:-17.4}"
+    container_name: hyperfocal-target
+    hostname: target
+    labels:
+      project: hyperfocal
+      role: target
+    networks:
+      hyperfocal:
+        ipv4_address: 172.20.0.11
+
+  workload:
+    build:
+      context: .
+      dockerfile: Dockerfile.workload
+    container_name: hyperfocal-workload
+    hostname: workload
+    labels:
+      project: hyperfocal
+      role: workload
+    networks:
+      hyperfocal:
+        ipv4_address: 172.20.0.12
+
+  pgbouncer:
+    build:
+      context: ./pgbouncer
+    container_name: hyperfocal-pgbouncer
+    hostname: pgbouncer
+    labels:
+      project: hyperfocal
+      role: pgbouncer
+    depends_on:
+      source:
+        condition: service_healthy
+    networks:
+      hyperfocal:
+        ipv4_address: 172.20.0.14
+    healthcheck:
+      test: ["CMD", "pg_isready", "-h", "localhost", "-p", "5432"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  app:
+    build:
+      context: ./app
+    container_name: hyperfocal-app
+    hostname: app
+    labels:
+      project: hyperfocal
+      role: app
+    environment:
+      PG_HOST: "172.20.0.14"
+      PG_PORT: "5432"
+      PG_USER: "postgres"
+      PG_DATABASE: "postgres"
+      PORT: "8080"
+    depends_on:
+      pgbouncer:
+        condition: service_healthy
+    networks:
+      hyperfocal:
+        ipv4_address: 172.20.0.13
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8080/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  postgres-exporter:
+    image: prometheuscommunity/postgres-exporter:v0.16.0
+    container_name: hyperfocal-postgres-exporter
+    hostname: postgres-exporter
+    labels:
+      project: hyperfocal
+      role: monitoring
+    environment:
+      DATA_SOURCE_NAME: "postgresql://postgres@172.20.0.10:5432/postgres?sslmode=disable"
+    depends_on:
+      source:
+        condition: service_healthy
+    networks:
+      hyperfocal:
+        ipv4_address: 172.20.0.20
+
+  prometheus:
+    image: prom/prometheus:v2.53.0
+    container_name: hyperfocal-prometheus
+    hostname: prometheus
+    labels:
+      project: hyperfocal
+      role: monitoring
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    depends_on:
+      - postgres-exporter
+    networks:
+      hyperfocal:
+        ipv4_address: 172.20.0.21
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:9090/-/healthy"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  grafana:
+    image: grafana/grafana:11.1.0
+    container_name: hyperfocal-grafana
+    hostname: grafana
+    labels:
+      project: hyperfocal
+      role: monitoring
+    environment:
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: "Admin"
+      GF_AUTH_DISABLE_LOGIN_FORM: "true"
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+    depends_on:
+      prometheus:
+        condition: service_healthy
+    networks:
+      hyperfocal:
+        ipv4_address: 172.20.0.22
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3000/api/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  gitea:
+    image: gitea/gitea:1.22
+    container_name: hyperfocal-gitea
+    hostname: gitea
+    labels:
+      project: hyperfocal
+      role: cicd
+    environment:
+      GITEA__database__DB_TYPE: sqlite3
+      GITEA__server__ROOT_URL: "http://172.20.0.30:3000"
+      GITEA__server__HTTP_PORT: "3000"
+      GITEA__security__INSTALL_LOCK: "true"
+      GITEA__service__DISABLE_REGISTRATION: "false"
+      GITEA__webhook__ALLOWED_HOST_LIST: "private"
+      GITEA__actions__ENABLED: "true"
+      GITEA__actions__DEFAULT_ACTIONS_URL: "github"
+    volumes:
+      - gitea-data:/data
+    networks:
+      hyperfocal:
+        ipv4_address: 172.20.0.30
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3000/api/v1/version"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  gitea-runner:
+    image: gitea/act_runner:latest
+    container_name: hyperfocal-gitea-runner
+    hostname: gitea-runner
+    labels:
+      project: hyperfocal
+      role: cicd
+    environment:
+      GITEA_INSTANCE_URL: "http://172.20.0.30:3000"
+      GITEA_RUNNER_REGISTRATION_TOKEN: "${GITEA_RUNNER_TOKEN:-placeholder}"
+      GITEA_RUNNER_NAME: "hyperfocal-runner"
+      GITEA_RUNNER_LABELS: "ubuntu-latest:docker://node:20-alpine"
+      CONFIG_FILE: /config.yaml
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./cicd/runner-config.yaml:/config.yaml:ro
+    depends_on:
+      gitea:
+        condition: service_healthy
+    networks:
+      hyperfocal:
+        ipv4_address: 172.20.0.31
+
+volumes:
+  gitea-data:
+
+networks:
+  hyperfocal:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/24

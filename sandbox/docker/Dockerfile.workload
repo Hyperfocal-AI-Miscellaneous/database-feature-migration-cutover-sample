@@ -1,0 +1,35 @@
+FROM amazonlinux:2023
+
+# Install PG client, SSH, sudo, tools
+RUN dnf install -y --allowerasing postgresql17 jq curl openssh-server sudo passwd procps-ng && \
+    dnf clean all
+
+# Create ec2-user with passwordless sudo
+RUN useradd -m -s /bin/bash ec2-user && \
+    echo "ec2-user ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/ec2-user && \
+    chmod 0440 /etc/sudoers.d/ec2-user
+
+# Configure SSH
+RUN ssh-keygen -A && \
+    mkdir -p /home/ec2-user/.ssh && \
+    chmod 700 /home/ec2-user/.ssh && \
+    chown ec2-user:ec2-user /home/ec2-user/.ssh && \
+    sed -i 's/#PubkeyAuthentication yes/PubkeyAuthentication yes/' /etc/ssh/sshd_config && \
+    sed -i 's/#PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config && \
+    echo "PasswordAuthentication no" >> /etc/ssh/sshd_config
+
+# Pre-create directories
+RUN mkdir -p /etc/hyperfocal && chmod 777 /etc/hyperfocal && \
+    mkdir -p /var/log/hyperfocal && chown ec2-user:ec2-user /var/log/hyperfocal
+
+# Copy workload scripts
+COPY workload-check.sh /home/ec2-user/workload-check.sh
+COPY workload-driver.sh /home/ec2-user/workload-driver.sh
+RUN chmod +x /home/ec2-user/workload-check.sh /home/ec2-user/workload-driver.sh && \
+    chown ec2-user:ec2-user /home/ec2-user/workload-check.sh /home/ec2-user/workload-driver.sh
+
+COPY entrypoint-workload.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+EXPOSE 22
+CMD ["/entrypoint.sh"]

@@ -1,0 +1,24 @@
+[
+  {
+    "id": "team-dba",
+    "name": "DBA",
+    "key": "DBA",
+    "description": "Database administrators",
+    "icon": "🗄️",
+    "color": "#5e6ad2",
+    "cyclesEnabled": true,
+    "triageEnabled": true,
+    "private": false
+  },
+  {
+    "id": "team-eng",
+    "name": "Engineering",
+    "key": "ENG",
+    "description": "Application engineering",
+    "icon": "🔧",
+    "color": "#4ea7fc",
+    "cyclesEnabled": true,
+    "triageEnabled": true,
+    "private": false
+  }
+]

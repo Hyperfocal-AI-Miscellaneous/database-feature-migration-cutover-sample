@@ -1,0 +1,33 @@
+name: CI Pipeline
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy-and-test:
+    runs-on: ubuntu-latest
+    container:
+      image: node:20-alpine
+    steps:
+      - name: Install system tools
+        run: apk add --no-cache git postgresql-client
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Apply migrations
+        run: |
+          for f in migrations/*.sql; do
+            echo "Applying $f..."
+            PGPASSWORD="" psql -h 172.20.0.10 -U postgres -d postgres -f "$f"
+          done
+          echo "Migrations complete."
+
+      - name: Install dependencies
+        run: npm install --production
+
+      - name: Run integration tests
+        env:
+          API_URL: "http://172.20.0.13:8080"
+          PG_HOST: "172.20.0.10"
+        run: npm test
