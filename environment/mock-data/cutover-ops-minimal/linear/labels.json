@@ -1,0 +1,6 @@
+[
+  { "id": "lbl-cutover", "name": "cutover", "color": "#eb5757", "description": "Database cutover work", "teamId": "team-dba" },
+  { "id": "lbl-feature", "name": "feature", "color": "#5e6ad2", "description": "New functionality", "teamId": "team-dba" },
+  { "id": "lbl-p1", "name": "P1", "color": "#eb5757", "description": "Critical priority", "teamId": "team-dba" },
+  { "id": "lbl-eng-bug", "name": "bug", "color": "#eb5757", "description": "Engineering bug", "teamId": "team-eng" }
+]

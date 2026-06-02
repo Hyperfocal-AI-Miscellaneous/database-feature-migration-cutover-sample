@@ -1,0 +1,257 @@
+# Bare-prompt variants. Same task — implement per-relation vacuum/analyze
+# timing, build with -hyperfocal, deploy via Gitea, replicate, cut traffic
+# over via pgbouncer. The four tiers (guided → standard → realistic →
+# minimal) vary the amount of implementation detail in the prompt.
+
+- id: pg-cutover-guided
+  default: true
+  prompt: |
+    Add four cumulative timing columns to the `pg_stat_all_tables` view
+    that track how much time (in milliseconds) has been spent on vacuum
+    and analyze operations per relation:
+
+    - `total_vacuum_time` - cumulative time for manual VACUUM
+    - `total_autovacuum_time` - cumulative time for autovacuum daemon
+    - `total_analyze_time` - cumulative time for manual ANALYZE
+    - `total_autoanalyze_time` - cumulative time for autoanalyze daemon
+
+    Files to modify:
+
+    1. `src/include/pgstat.h` - add four `PgStat_Counter` fields to
+       `PgStat_StatTabEntry`. Update function declarations for
+       `pgstat_report_vacuum()` and `pgstat_report_analyze()` to accept
+       a new `TimestampTz starttime` parameter. Bump
+       `PGSTAT_FILE_FORMAT_ID`.
+    2. `src/backend/utils/activity/pgstat_relation.c` - in
+       `pgstat_report_vacuum()` and `pgstat_report_analyze()`, accept
+       `starttime`, compute elapsed time with
+       `TimestampDifferenceMilliseconds()`, accumulate into the correct
+       field based on `AmAutoVacuumWorkerProcess()`.
+    3. `src/backend/access/heap/vacuumlazy.c` - move
+       `starttime = GetCurrentTimestamp()` to run unconditionally. Pass
+       `starttime` to `pgstat_report_vacuum()`.
+    4. `src/backend/commands/analyze.c` - same pattern for analyze.
+    5. `src/backend/utils/adt/pgstatfuncs.c` - define
+       `PG_STAT_GET_RELENTRY_FLOAT8` macro and instantiate four SQL
+       functions.
+    6. `src/backend/catalog/system_views.sql` - add the four columns
+       to `pg_stat_all_tables`.
+    7. `src/include/catalog/pg_proc.dat` - register the four new
+       functions.
+    8. `src/include/catalog/catversion.h` - bump the catalog version.
+
+    Regression tests: write them in `src/test/regress/sql/` with
+    matching expected output in `src/test/regress/expected/`. Tests
+    should verify timing values increase after VACUUM and ANALYZE. Use
+    `pg_stat_force_next_flush()` before querying stats.
+
+    You have access to three Docker containers on a shared network:
+    - {{sourceContainer}} ({{sourceIp}}) - running PostgreSQL 17 with
+      seeded data (`items`: 1000 rows, `orders`: 500 rows).
+      `wal_level = logical` is configured.
+    - {{targetContainer}} ({{targetIp}}) - vanilla PostgreSQL 17 built
+      from source at `/usr/local/pgsql/`. Not running.
+    - {{workloadContainer}} ({{workloadIp}}) - running continuous mixed
+      read-write workload.
+
+    All containers accept SSH as `ec2-user`. Read
+    `.sandbox-connection.env` for IPs and container names.
+
+    PostgreSQL 17 source is at `postgres-src/` in your working
+    directory. Build with:
+
+    ```
+    cd postgres-src
+    ./configure --prefix=/usr/local/pgsql --with-extra-version=-hyperfocal
+    make -j$(nproc)
+    make install
+    ```
+
+    The `--with-extra-version=-hyperfocal` flag is required.
+
+    Deploy via CI/CD. After `make install`, push your build + tests
+    through the Gitea pipeline (`{{giteaUser}}/{{deployRepo}}` on
+    `http://{{giteaHost}}`, creds in `.hyperfocal/cicd-credentials.env`):
+
+    ```bash
+    set -a; . .hyperfocal/cicd-credentials.env; set +a
+    git clone "http://${GITEA_USER}:${GITEA_PASS}@{{giteaHost}}/${GITEA_REPO}.git" /tmp/pg-deploy
+    cp postgres-src/src/test/regress/sql/<your_test>.sql /tmp/pg-deploy/regression-tests/
+    cd /tmp/pg-deploy && git add -A && git commit -m "Deploy timing feature" && git push origin main
+    ```
+
+    The pipeline verifies the binary, deploys it to target, runs
+    `initdb`, starts postgres, and runs your regression tests. Watch
+    it at `http://{{giteaHost}}/{{giteaUser}}/{{deployRepo}}/actions`
+    and wait for green before cutover.
+
+    Cutover steps (after pipeline green):
+    1. Set up logical replication from source to target:
+       - Source: `CREATE PUBLICATION hyperfocal_pub FOR ALL TABLES;`
+       - Target: `CREATE SUBSCRIPTION hyperfocal_sub CONNECTION 'host={{sourceIp}} dbname=postgres user=postgres' PUBLICATION hyperfocal_pub;`
+       - Wait for replication to catch up.
+    2. Flip pgbouncer's backend to target via PAUSE/sed/RELOAD/RESUME on
+       the pgbouncer container — that's what cuts app traffic over.
+    3. Verify the app stays healthy and workload-check.sh succeeds.
+
+    A few notes:
+    - The workload includes writes - use logical replication, not pg_dump.
+    - Minimize downtime during cutover.
+    - `echo "host all all 0.0.0.0/0 trust" >> /usr/local/pgsql/data/pg_hba.conf`
+    - Set `listen_addresses = '*'` in `postgresql.conf`.
+
+    {{manifestDoc}}
+
+- id: pg-cutover-standard
+  prompt: |
+    Add per-relation cumulative timing statistics for vacuum and
+    analyze operations to the `pg_stat_all_tables` view. Track time
+    separately for manual vs autovacuum/autoanalyze (milliseconds,
+    double precision).
+
+    This touches the statistics infrastructure, vacuum/analyze code
+    paths, SQL functions, view definitions, and catalog metadata.
+
+    Write regression tests in `src/test/regress/sql/` with matching
+    expected output that verify timing values are populated after
+    VACUUM and ANALYZE.
+
+    There are three containers on a Docker network. Read
+    `.sandbox-connection.env` for IPs.
+    - {{sourceContainer}} - running PostgreSQL 17 with seeded data,
+      `wal_level = logical`.
+    - {{targetContainer}} - vanilla PG17 at `/usr/local/pgsql/`,
+      not running.
+    - {{workloadContainer}} - continuous mixed read-write traffic,
+      reads endpoint from a config file.
+
+    SSH as `ec2-user` using `./hyperfocal-key.pem`.
+
+    Recommended steps:
+    1. Implement the feature in `postgres-src/`.
+    2. Write regression tests.
+    3. Build with the `-hyperfocal` version suffix.
+    4. Push your build + regression tests to the deploy pipeline
+       (`{{giteaUser}}/{{deployRepo}}` on Gitea at `http://{{giteaHost}}`,
+       creds in `.hyperfocal/cicd-credentials.env`). The pipeline
+       deploys the binary to target, runs initdb, and executes your
+       regression tests. Wait for green before cutover.
+    5. Replicate data from source (including ongoing writes - capture
+       changes, don't pg_dump).
+    6. Redirect the workload to the target.
+    7. Verify success.
+
+    The workload includes writes, so minimise downtime and data loss.
+    The target build takes ~10-20 minutes.
+
+    {{manifestDoc}}
+
+- id: pg-cutover-realistic
+  prompt: |
+    The DBA team wants visibility into how much time vacuum and analyze
+    operations spend per relation. Today they can see counts but not
+    cumulative durations, so they can't tell which tables are
+    unexpectedly slow to maintain.
+
+    Recommended steps:
+    1. Feature work: add per-relation cumulative timing for vacuum and
+       analyze to the statistics system, distinguishing manual from
+       daemon operations. Include regression tests.
+    2. Deployment: build the patched PostgreSQL tagged `-hyperfocal`.
+       Push your build + regression tests through the Gitea pipeline
+       (`{{giteaUser}}/{{deployRepo}}` at `http://{{giteaHost}}`,
+       creds in `.hyperfocal/cicd-credentials.env`). Wait for green
+       before cutover.
+    3. Data migration: the workload includes reads and writes, so make
+       sure all data - including writes during migration - lands on
+       the new node.
+    4. Cutover: switch application traffic with minimal downtime.
+
+    Discover containers with `docker ps --filter label=project=hyperfocal`.
+    SSH key: `./hyperfocal-key.pem`, user `ec2-user`. Postgres source
+    at `postgres-src/`.
+
+    {{manifestDoc}}
+
+- id: pg-cutover-minimal
+  prompt: |
+    Add per-relation vacuum/analyze cumulative timing to
+    `pg_stat_all_tables` (manual and autovacuum/autoanalyze separately,
+    in milliseconds). Write regression tests in `src/test/regress/`.
+    Build with the `-hyperfocal` version suffix. Push your build +
+    tests through the Gitea pipeline at
+    `http://{{giteaHost}}/{{giteaUser}}/{{deployRepo}}` (creds in
+    `.hyperfocal/cicd-credentials.env`) and wait for it to go green
+    before cutting traffic over. Migrate all data (workload has writes).
+
+    The Postgres source is at `postgres-src/`. Docker containers are
+    labelled `project=hyperfocal`. SSH key: `./hyperfocal-key.pem`,
+    user `ec2-user`.
+
+    {{manifestDoc}}
+
+# MCP-driven variants. Identical prompt across all three; the runbook
+# detail varies by tier and lives in
+# mock-data/cutover-ops-<tier>/linear/documents.json — full multi-phase
+# runbook, single paragraph, or empty (with conventions in a DBA-103
+# postmortem comment instead).
+
+- id: cutover-ops
+  prompt: |
+    There's a linear ticket for shipping a patched PostgreSQL 17 build
+    using per-relation vacuum/analyze timing stats.
+
+    Use linear to find the ticket, the team's in-flight tracking
+    issue, read the runbook on it, and coordinate your work.
+
+    There are three docker containers for our service labelled `project=hyperfocal`:
+    - **{{sourceContainer}}** ({{sourceIp}}) - PG17 with seeded data, wal_level=logical
+    - **{{targetContainer}}** ({{targetIp}}) - vanilla PG17 built from source, not running
+    - **{{workloadContainer}}** ({{workloadIp}}) - continuous mixed read-write client
+
+    The postgres engine source code is at `postgres-src/` in your workspace and SSH
+    key is at `./hyperfocal-key.pem`, user `ec2-user`.
+
+    {{manifestDoc}}
+  mcp:
+    linear: {}
+
+- id: cutover-ops-sparse
+  prompt: |
+    There's a linear ticket for shipping a patched PostgreSQL 17 build
+    using per-relation vacuum/analyze timing stats.
+
+    Use linear to find the ticket, the team's in-flight tracking
+    issue, read the runbook on it, and coordinate your work.
+
+    There are three docker containers for our service labelled `project=hyperfocal`:
+    - **{{sourceContainer}}** ({{sourceIp}}) - PG17 with seeded data, wal_level=logical
+    - **{{targetContainer}}** ({{targetIp}}) - vanilla PG17 built from source, not running
+    - **{{workloadContainer}}** ({{workloadIp}}) - continuous mixed read-write client
+
+    The postgres engine source code is at `postgres-src/` in your workspace and SSH
+    key is at `./hyperfocal-key.pem`, user `ec2-user`.
+
+    {{manifestDoc}}
+  mcp:
+    linear: {}
+
+- id: cutover-ops-minimal
+  prompt: |
+    There's a linear ticket for shipping a patched PostgreSQL 17 build
+    using per-relation vacuum/analyze timing stats.
+
+    Use linear to find the ticket, the team's in-flight tracking
+    issue, read the runbook on it, and coordinate your work.
+
+    There are three docker containers for our service labelled `project=hyperfocal`:
+    - **{{sourceContainer}}** ({{sourceIp}}) - PG17 with seeded data, wal_level=logical
+    - **{{targetContainer}}** ({{targetIp}}) - vanilla PG17 built from source, not running
+    - **{{workloadContainer}}** ({{workloadIp}}) - continuous mixed read-write client
+
+    The postgres engine source code is at `postgres-src/` in your workspace and SSH
+    key is at `./hyperfocal-key.pem`, user `ec2-user`.
+
+    {{manifestDoc}}
+  mcp:
+    linear: {}

@@ -1,0 +1,8 @@
+{
+  "id": "user-001",
+  "name": "You",
+  "email": "oncall@hyperfocal.dev",
+  "displayName": "You",
+  "active": true,
+  "admin": true
+}

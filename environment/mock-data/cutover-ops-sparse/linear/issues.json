@@ -1,0 +1,93 @@
+[
+  {
+    "id": "iss-dba-104",
+    "identifier": "DBA-104",
+    "title": "Cutover: ship per-relation vacuum/analyze timing patch to PG17 production",
+    "description": "**Scope**: add per-relation cumulative timing for vacuum and analyze operations to `pg_stat_all_tables`. Track manual vs autovacuum/autoanalyze separately — four counters, milliseconds, double precision.\n\nInclude regression tests.\n\n**Cutover**: follow the project runbook (`PG Cluster Cutover`).\n\nProgress this ticket through **Todo → In Progress → In Review → Done** as you go.\n\nAssigned to: you.",
+    "priority": 1,
+    "url": "https://linear.app/hyperfocal/issue/DBA-104",
+    "createdAt": "2026-04-22T09:30:00.000Z",
+    "updatedAt": "2026-04-28T16:30:00.000Z",
+    "completedAt": null,
+    "state": { "id": "ws-todo-dba", "name": "Todo", "type": "unstarted", "color": "#e2e2e2" },
+    "assignee": { "id": "user-001", "name": "You", "email": "oncall@hyperfocal.dev" },
+    "team": { "id": "team-dba", "name": "DBA", "key": "DBA" },
+    "project": { "id": "proj-cutover", "name": "PG17 Upgrade + Observability", "state": "started" },
+    "labels": { "nodes": [
+      { "id": "lbl-cutover", "name": "cutover", "color": "#eb5757" },
+      { "id": "lbl-feature", "name": "feature", "color": "#5e6ad2" },
+      { "id": "lbl-p1", "name": "P1", "color": "#eb5757" }
+    ]},
+    "comments": { "nodes": [] }
+  },
+  {
+    "id": "iss-dba-103",
+    "identifier": "DBA-103",
+    "title": "Cutover: enable pg_cron on analytics replica",
+    "description": "Previous DBA cutover, completed last week. See the postmortem comment for our standard cutover technique + the manifest schema we use.",
+    "priority": 2,
+    "url": "https://linear.app/hyperfocal/issue/DBA-103",
+    "createdAt": "2026-04-15T12:00:00.000Z",
+    "updatedAt": "2026-04-21T14:20:00.000Z",
+    "completedAt": "2026-04-21T14:20:00.000Z",
+    "state": { "id": "ws-done-dba", "name": "Done", "type": "completed", "color": "#5e6ad2" },
+    "assignee": { "id": "user-002", "name": "Priya Menon" },
+    "team": { "id": "team-dba", "name": "DBA", "key": "DBA" },
+    "project": { "id": "proj-cutover", "name": "PG17 Upgrade + Observability", "state": "started" },
+    "labels": { "nodes": [{ "id": "lbl-cutover", "name": "cutover", "color": "#eb5757" }] },
+    "comments": { "nodes": [
+      {
+        "id": "cmt-dba-103-postmortem",
+        "body": "Cutover complete — posting notes + manifest for the audit log so future on-call has a reference.\n\n**Build:** `--with-extra-version=-hyperfocal` per team convention (so on-call can spot our patched binaries from `SELECT version()`).\n**Deploy:** through the Gitea pipeline (run #38) — don't SSH-deploy directly to target, the pipeline-green check is how we audit that the deployed binary actually came from a reviewed commit.\n**Cutover:** PAUSE → wait for in-flight to drain → sed the host in pgbouncer.ini → RELOAD → RESUME. **No KILL** — it forcibly drops live server connections and the workload sees a burst of HTTP errors. Last quarter's incident review specifically called this out.\n**Workflow:** Todo → In Progress → In Review → Done as usual; In Review while waiting for replication to drain + smoke tests, Done after the manifest comment is posted.\n\nManifest (team standard schema — keep these field names consistent across cutovers so the audit log lines up):\n\n```json\n{\n  \"sourceInstanceId\": \"analytics-source\",\n  \"targetInstanceId\": \"analytics-target\",\n  \"workloadInstanceId\": \"analytics-workload\",\n  \"targetHost\": \"172.20.0.20\",\n  \"pgBinaryPath\": \"/usr/local/pgsql/bin/postgres\",\n  \"patchDescription\": \"Enabled pg_cron extension for scheduled jobs on the analytics replica\",\n  \"deploymentPipelineRun\": 38,\n  \"replicationLagBytesAtCutover\": 0,\n  \"cutoverTimestamp\": \"2026-04-21T14:18:00.000Z\"\n}\n```",
+        "createdAt": "2026-04-21T14:20:00.000Z",
+        "user": { "id": "user-002", "name": "Priya Menon" }
+      }
+    ]}
+  },
+  {
+    "id": "iss-dba-105",
+    "identifier": "DBA-105",
+    "title": "Investigate autovacuum lag on orders table",
+    "description": "Autovacuum has been running behind on the orders table under peak load. Blocked on DBA-104 shipping so we can actually observe per-relation autovacuum timing.",
+    "priority": 3,
+    "url": "https://linear.app/hyperfocal/issue/DBA-105",
+    "createdAt": "2026-04-26T11:00:00.000Z",
+    "updatedAt": "2026-04-28T09:30:00.000Z",
+    "completedAt": null,
+    "state": { "id": "ws-backlog-dba", "name": "Backlog", "type": "backlog", "color": "#bec2c8" },
+    "assignee": { "id": "user-003", "name": "Wei Chen" },
+    "team": { "id": "team-dba", "name": "DBA", "key": "DBA" },
+    "project": { "id": "proj-cutover", "name": "PG17 Upgrade + Observability", "state": "started" },
+    "labels": { "nodes": [{ "id": "lbl-cutover", "name": "cutover", "color": "#eb5757" }] }
+  },
+  {
+    "id": "iss-eng-301",
+    "identifier": "ENG-301",
+    "title": "Add /orders/by-customer caching layer",
+    "description": "Performance improvement for /orders/by-customer. Unrelated to DBA cutover work.",
+    "priority": 3,
+    "url": "https://linear.app/hyperfocal/issue/ENG-301",
+    "createdAt": "2026-04-24T10:00:00.000Z",
+    "updatedAt": "2026-04-28T15:00:00.000Z",
+    "completedAt": null,
+    "state": { "id": "ws-inprogress-eng", "name": "In Progress", "type": "started", "color": "#f2c94c" },
+    "assignee": { "id": "user-003", "name": "Wei Chen" },
+    "team": { "id": "team-eng", "name": "Engineering", "key": "ENG" },
+    "labels": { "nodes": [{ "id": "lbl-eng-bug", "name": "bug", "color": "#eb5757" }] }
+  },
+  {
+    "id": "iss-eng-302",
+    "identifier": "ENG-302",
+    "title": "Rotate JWT signing key",
+    "description": "Quarterly key rotation. Unrelated to DBA work.",
+    "priority": 2,
+    "url": "https://linear.app/hyperfocal/issue/ENG-302",
+    "createdAt": "2026-04-25T14:00:00.000Z",
+    "updatedAt": "2026-04-28T10:00:00.000Z",
+    "completedAt": null,
+    "state": { "id": "ws-todo-eng", "name": "Todo", "type": "unstarted", "color": "#e2e2e2" },
+    "assignee": { "id": "user-002", "name": "Priya Menon" },
+    "team": { "id": "team-eng", "name": "Engineering", "key": "ENG" },
+    "labels": { "nodes": [{ "id": "lbl-eng-rotate", "name": "rotation", "color": "#bec2c8" }] }
+  }
+]

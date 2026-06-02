@@ -1,0 +1,28 @@
+[
+  {
+    "id": "proj-cutover",
+    "name": "PG17 Upgrade + Observability",
+    "description": "Cut over to PG17 with a patched build that adds per-relation vacuum timing stats.",
+    "slugId": "pg17-upgrade-observability",
+    "icon": "🗄️",
+    "color": "#5e6ad2",
+    "state": "started",
+    "progress": 0.25,
+    "health": "onTrack",
+    "priority": 1,
+    "url": "https://linear.app/hyperfocal/project/pg17-upgrade-observability",
+    "startDate": "2026-04-15",
+    "targetDate": "2026-05-10",
+    "lead": { "id": "user-002", "name": "Priya Menon", "email": "priya@hyperfocal.dev" },
+    "teams": { "nodes": [{ "id": "team-dba", "name": "DBA", "key": "DBA" }] },
+    "members": {
+      "nodes": [
+        { "id": "user-001", "name": "You" },
+        { "id": "user-002", "name": "Priya Menon" },
+        { "id": "user-003", "name": "Wei Chen" }
+      ]
+    },
+    "createdAt": "2026-04-10T10:00:00.000Z",
+    "updatedAt": "2026-04-22T16:30:00.000Z"
+  }
+]

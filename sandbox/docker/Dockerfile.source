@@ -1,0 +1,47 @@
+FROM amazonlinux:2023
+
+# Install PG17, SSH server, sudo
+RUN dnf install -y postgresql17-server postgresql17 openssh-server sudo passwd procps-ng && \
+    dnf clean all
+
+# Create ec2-user with passwordless sudo (matches AWS EC2 convention)
+RUN useradd -m -s /bin/bash ec2-user && \
+    echo "ec2-user ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/ec2-user && \
+    chmod 0440 /etc/sudoers.d/ec2-user
+
+# Configure SSH
+RUN ssh-keygen -A && \
+    mkdir -p /home/ec2-user/.ssh && \
+    chmod 700 /home/ec2-user/.ssh && \
+    chown ec2-user:ec2-user /home/ec2-user/.ssh && \
+    sed -i 's/#PubkeyAuthentication yes/PubkeyAuthentication yes/' /etc/ssh/sshd_config && \
+    sed -i 's/#PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config && \
+    echo "PasswordAuthentication no" >> /etc/ssh/sshd_config
+
+# Create runtime directory and initialize PG cluster
+RUN mkdir -p /var/run/postgresql && chown postgres:postgres /var/run/postgresql && \
+    su - postgres -c '/usr/bin/initdb -D /var/lib/pgsql/data'
+
+# Install pg_stat_statements contrib module
+RUN dnf install -y postgresql17-contrib && dnf clean all
+
+# Configure PG for remote access + logical replication + pg_stat_statements
+RUN PG_DATA=/var/lib/pgsql/data && \
+    sed -i "s/^#listen_addresses = 'localhost'/listen_addresses = '*'/" "$PG_DATA/postgresql.conf" && \
+    echo "listen_addresses = '*'" >> "$PG_DATA/postgresql.conf" && \
+    echo "wal_level = logical" >> "$PG_DATA/postgresql.conf" && \
+    echo "shared_preload_libraries = 'pg_stat_statements'" >> "$PG_DATA/postgresql.conf" && \
+    echo "pg_stat_statements.track = all" >> "$PG_DATA/postgresql.conf" && \
+    echo -e "host    all             all             0.0.0.0/0               trust\nlocal   all             all                                     trust" | cat - "$PG_DATA/pg_hba.conf" > /tmp/pg_hba.tmp && \
+    mv /tmp/pg_hba.tmp "$PG_DATA/pg_hba.conf" && \
+    chown postgres:postgres "$PG_DATA/pg_hba.conf"
+
+# Seed data script
+COPY seed.sql /tmp/seed.sql
+
+# Entrypoint starts PG, seeds data, starts sshd
+COPY entrypoint-source.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+EXPOSE 22 5432
+CMD ["/entrypoint.sh"]
