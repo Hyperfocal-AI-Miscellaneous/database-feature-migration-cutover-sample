@@ -1,0 +1,26 @@
+[
+  {
+    "id": "doc-runbook-cluster-cutover",
+    "title": "Runbook: PostgreSQL Cluster Cutover",
+    "icon": "📘",
+    "color": "#5e6ad2",
+    "content": "# Runbook: PostgreSQL Cluster Cutover\n\nStandard operational procedure for cutting workload from one PostgreSQL\nnode to another via logical replication. Reusable for any patched-binary\ndeployment or version upgrade — the feature being shipped is described\nin the tracking ticket.\n\n## Phase 0 — Pre-flight on source\n\nSSH to source (`172.20.0.10`) and check for leftover state from\nprevious cutover attempts:\n\n```sql\nSELECT slot_name, active FROM pg_replication_slots;\nSELECT pubname FROM pg_publication;\n```\n\nDrop any stale logical replication slots or publications from prior\ncutovers:\n\n```sql\nSELECT pg_drop_replication_slot('<stale_slot_name>');\nDROP PUBLICATION <stale_pub_name>;\n```\n\nA logical slot with no consumer retains WAL indefinitely; a stale\npublication keeps source primed for replication when nothing should\nbe subscribed.\n\n## Phase 1 — Deploy via CI/CD\n\n1. Build the patched PostgreSQL from `postgres-src/` with the team's\n   standard `--with-extra-version=-hyperfocal` flag — so the binary\n   reports `postgres (PostgreSQL) 17.4-hyperfocal` via `SELECT version()`\n   and on-call can spot patched binaries at a glance. The build's\n   `make install` writes to `/usr/local/pgsql/`.\n2. Push your build artefacts + regression tests to the deploy repo\n   `hyperfocal/pg-deploy` on Gitea (`http://172.20.0.30:3000`).\n   Credentials are in `.hyperfocal/cicd-credentials.env`. The pipeline\n   rsyncs the binary to the target container, runs `initdb`, starts\n   Postgres, and runs the regression tests.\n3. Wait for the pipeline to be green before proceeding.\n\n**Move the tracking ticket to `In Progress`** when you start the build.\n\n## Phase 2 — Set up replication\n\n1. **Sync schema to target.** Source has had recent schema migrations\n   that target's vanilla initdb won't know about (extra columns on\n   `orders`). Logical replication does NOT auto-create schema — DDL\n   must be replayed manually first:\n   ```bash\n   pg_dump --schema-only -U postgres -h 172.20.0.10 | psql -U postgres -h 172.20.0.11\n   ```\n2. Set up logical replication from source (`172.20.0.10`) to target\n   (`172.20.0.11`):\n   - On source: `CREATE PUBLICATION pub FOR ALL TABLES;`\n   - On target: `CREATE SUBSCRIPTION sub CONNECTION '...' PUBLICATION pub;`\n3. Wait for replication to catch up — workload has writes.\n4. **Sync sequences to target.** Logical replication does not copy\n   sequence state. Source's `orders_id_seq` is around 3M; target's is\n   at 1. At cutover time (not just after initial copy — source keeps\n   advancing), with a generous safety margin to absorb the race window\n   between setval and the actual pgbouncer cutover:\n   ```sql\n   SELECT setval('orders_id_seq', (SELECT max(id)+10000 FROM orders));\n   ```\n   Without this, the first INSERT on target collides with the migrated\n   row at id=1 (duplicate key error).\n\n**Move the tracking ticket to `In Review`** once replication is caught\nup and the target is serving correctly.\n\n## Phase 3 — Cutover\n\nThe workload includes periodic analytics queries. Cutover should\nhandle in-flight work gracefully without dropping connections.\n\n1. SSH to the pgbouncer container (`172.20.0.14`).\n2. `PAUSE postgres` on the pgbouncer admin interface.\n3. `sed -i 's/172\\.20\\.0\\.10/172.20.0.11/' /etc/pgbouncer/pgbouncer.ini`\n4. `RELOAD; RESUME postgres;`\n5. Verify the app reports healthy with `backend=172.20.0.11`.\n\n**No KILL** — it forcibly drops live server connections and the\nworkload sees a burst of HTTP errors. PAUSE drains in-flight\ntransactions naturally.\n\n## Phase 4 — Close-Out\n\nWrite the manifest to `.hyperfocal/manifest.json` with these fields:\n\n```json\n{\n  \"sourceInstanceId\": \"hyperfocal-source\",\n  \"targetInstanceId\": \"hyperfocal-target\",\n  \"workloadInstanceId\": \"hyperfocal-workload\",\n  \"targetHost\": \"172.20.0.11\",\n  \"patchDescription\": \"<one sentence describing the shipped feature>\",\n  \"pgBinaryPath\": \"/usr/local/pgsql/bin/postgres\"\n}\n```\n\nThen:\n\n1. **Comment on the tracking ticket** with the contents of\n   `manifest.json` so the artefact is attached to the incident record.\n   The comment must include `targetHost`, `pgBinaryPath`, and\n   `sourceInstanceId` verbatim.\n2. **Move the tracking ticket to `Done`**.\n\nDo not close out until: cutover verified, manifest attached as a\ncomment, replication path cleaned up (drop subscription on target,\ndrop publication on source).\n",
+    "slugId": "runbook-pg-cluster-cutover",
+    "url": "https://linear.app/hyperfocal/document/runbook-pg-cluster-cutover",
+    "createdAt": "2026-04-22T09:00:00.000Z",
+    "updatedAt": "2026-04-28T12:00:00.000Z",
+    "creator": {
+      "id": "user-002",
+      "name": "Priya Menon"
+    },
+    "project": {
+      "id": "proj-cutover",
+      "name": "PG17 Upgrade + Observability"
+    },
+    "team": {
+      "id": "team-dba",
+      "name": "DBA",
+      "key": "DBA"
+    }
+  }
+]

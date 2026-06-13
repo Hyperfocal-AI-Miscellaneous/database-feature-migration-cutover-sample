@@ -1,0 +1,64 @@
+# Hyperfocal Environment Configuration
+# This file configures the env-orchestrator for rollouts and local testing.
+
+version: "1.0"
+
+environment:
+  name: database-feature-migration-cutover
+  description: "Implement PG timing stats feature, build, deploy to Docker sandbox, migrate data with CDC, cut over live workload."
+
+paths:
+  root: /hyperfocal/env
+  environmentDist: environment/dist
+  workspace: workspace
+
+agent:
+  awsAccess: false
+  disallowedTools:
+    # Prevent bypassing SSH-based container access model
+    - "Bash(docker exec*)"
+    - "Bash(docker cp*)"
+    - "Bash(docker logs*)"
+    - "Bash(docker restart*)"
+    - "Bash(docker stop*)"
+    - "Bash(docker kill*)"
+    - "Bash(docker-compose exec*)"
+    # Prevent reading OR writing test/grading logic, app source, or sandbox infrastructure
+    - "Read(/hyperfocal/env/environment/*)"
+    - "Read(/hyperfocal/env/sandbox/*)"
+    - "Read(/hyperfocal/env/packages/*)"
+    - "Read(/hyperfocal/env/hyperfocal.yaml)"
+    - "Read(/hyperfocal/env/environment/problems.yaml)"
+    - "Write(/hyperfocal/env/environment/*)"
+    - "Write(/hyperfocal/env/sandbox/*)"
+    - "Write(/hyperfocal/env/packages/*)"
+    # Block CLAUDE.md anywhere in the agent's auto-load path. Claude Code
+    # walks UP from cwd loading CLAUDE.md from each parent directory; any
+    # such file becomes silent agent context with no Read tool call needed.
+    # Belt-and-suspenders via Read disallow in case anyone re-creates one;
+    # the file shouldn't exist at all (operator docs live at
+    # environment/docs/, already covered by the env block above).
+    - "Read(/hyperfocal/env/CLAUDE.md)"
+    - "Read(/hyperfocal/env/workspace/CLAUDE.md)"
+    - "Read(/hyperfocal/CLAUDE.md)"
+    - "Read(CLAUDE.md)"
+    # Bash bypass of the Read restrictions above (cat/head/grep/etc.).
+    # Without these, the agent can `cat sandbox/docker/cicd/init-cicd.sh`
+    # to lift Gitea credentials. Match both the absolute path and the
+    # relative ./sandbox/docker form for completeness.
+    - "Bash(* /hyperfocal/env/sandbox*)"
+    - "Bash(*sandbox/docker*)"
+    - "Bash(* /hyperfocal/env/environment*)"
+    - "Bash(* /hyperfocal/env/packages*)"
+    - "Bash(* /hyperfocal/env/CLAUDE.md*)"
+    - "Bash(* /hyperfocal/CLAUDE.md*)"
+    - "Bash(*CLAUDE.md*)"
+    # Prevent reading git history that could expose gold state or solution hints
+    - "Bash(git log*)"
+    - "Bash(git diff*)"
+    - "Bash(git show*)"
+    - "Bash(git branch*)"
+    - "Bash(git stash*)"
+
+output:
+  schemaFile: environment/manifest-schema.json
