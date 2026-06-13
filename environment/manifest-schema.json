@@ -1,0 +1,41 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "HyperfocalManifest",
+  "description": "Agent output manifest for the self-managed Postgres RL environment",
+  "type": "object",
+  "required": [
+    "sourceInstanceId",
+    "targetInstanceId",
+    "workloadInstanceId",
+    "targetHost",
+    "patchDescription",
+    "pgBinaryPath"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "sourceInstanceId": {
+      "type": "string",
+      "description": "EC2 instance ID of the source (original) Postgres node"
+    },
+    "targetInstanceId": {
+      "type": "string",
+      "description": "EC2 instance ID of the target (new, patched) Postgres node"
+    },
+    "workloadInstanceId": {
+      "type": "string",
+      "description": "EC2 instance ID of the workload driver"
+    },
+    "targetHost": {
+      "type": "string",
+      "description": "Private IP or DNS hostname of the target EC2 instance"
+    },
+    "patchDescription": {
+      "type": "string",
+      "description": "Brief description of the feature implemented in the Postgres source"
+    },
+    "pgBinaryPath": {
+      "type": "string",
+      "description": "Absolute path on the target EC2 to the compiled postgres binary"
+    }
+  }
+}

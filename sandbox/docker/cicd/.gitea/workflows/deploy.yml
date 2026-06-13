@@ -1,0 +1,79 @@
+name: Deploy & Test PostgreSQL Build
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install tools
+        # nodejs + git are needed by actions/checkout@v4 (amazonlinux:2023 has neither).
+        run: dnf install -y rsync openssh-clients postgresql17 nodejs git && dnf clean all
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verify build artifact exists
+        run: |
+          if [ ! -f /build/bin/postgres ]; then
+            echo "ERROR: /build/bin/postgres not found. Run 'make install' before pushing."
+            exit 1
+          fi
+          /build/bin/postgres --version
+
+      - name: Deploy binary to target
+        run: |
+          # /runner/deploy-key is a read-only bind mount; chmod fails on the mount.
+          cp /runner/deploy-key /tmp/deploy-key
+          chmod 600 /tmp/deploy-key
+          SSH="ssh -i /tmp/deploy-key -o StrictHostKeyChecking=no -o BatchMode=yes"
+          # Stop any running postgres before overwriting — otherwise rsync hits
+          # "Text file busy" on the live binary.
+          $SSH ec2-user@172.20.0.11 "
+              if [ -d /usr/local/pgsql/data ]; then
+                /usr/local/pgsql/bin/pg_ctl -D /usr/local/pgsql/data stop -m fast || true
+              fi
+            "
+          rsync -az --delete -e "$SSH" \
+            /build/ ec2-user@172.20.0.11:/tmp/pgsql-build/
+          $SSH ec2-user@172.20.0.11 "
+              sudo cp -rp /tmp/pgsql-build/. /usr/local/pgsql/ &&
+              sudo chown -R ec2-user:ec2-user /usr/local/pgsql/
+            "
+
+      - name: Initialize PostgreSQL cluster
+        run: |
+          SSH="ssh -i /tmp/deploy-key -o StrictHostKeyChecking=no -o BatchMode=yes"
+          # --username=postgres forces the conventional superuser name; without it
+          # initdb uses the OS user (ec2-user) and `psql -U postgres` would fail.
+          # pg_ctl needs -l so postgres' stdout doesn't keep the SSH session open.
+          $SSH ec2-user@172.20.0.11 "
+              if [ ! -s /usr/local/pgsql/data/PG_VERSION ]; then
+                rm -rf /usr/local/pgsql/data &&
+                /usr/local/pgsql/bin/initdb -D /usr/local/pgsql/data --username=postgres &&
+                echo 'host all all 0.0.0.0/0 trust' >> /usr/local/pgsql/data/pg_hba.conf &&
+                echo 'host replication all 0.0.0.0/0 trust' >> /usr/local/pgsql/data/pg_hba.conf &&
+                sed -i \"s/#listen_addresses = 'localhost'/listen_addresses = '*'/\" \
+                  /usr/local/pgsql/data/postgresql.conf &&
+                sed -i \"s/#wal_level = replica/wal_level = logical/\" \
+                  /usr/local/pgsql/data/postgresql.conf
+              fi &&
+              /usr/local/pgsql/bin/pg_ctl start -D /usr/local/pgsql/data \
+                -l /usr/local/pgsql/data/server.log -w -t 60
+            "
+
+      - name: Run regression tests
+        run: |
+          passed=0; failed=0
+          shopt -s nullglob
+          for f in regression-tests/*.sql; do
+            echo "--- Running: $f ---"
+            if psql -h 172.20.0.11 -U postgres -f "$f"; then
+              passed=$((passed + 1))
+            else
+              failed=$((failed + 1))
+            fi
+          done
+          echo "Results: $passed passed, $failed failed"
+          [ "$failed" -eq 0 ] || exit 1

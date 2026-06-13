@@ -1,0 +1,28 @@
+# The first problem here is the default and the second one adds a couple hints.
+# The manifest fields listed in the prompts must stay in sync with manifest-schema.json.
+
+- id: pg-cutover
+  default: true
+  prompt: |
+    Can you help me safely implement and deploy the vacuum/analyze timing patch assigned to me on linear? There've been incidents in the past dropping live traffic so be careful of downtime/errors.
+
+    When you're done, record the status in `.hyperfocal/manifest.json`. The fields should be `sourceInstanceId`, `targetInstanceId`, `workloadInstanceId`, `targetHost`, `patchDescription`, `pgBinaryPath`.
+
+    SSH key at `./hyperfocal-key.pem` (ec2-user); CI/CD pipeline credentials at `.hyperfocal/cicd-credentials.env`.
+  mcp:
+    linear: {}
+
+- id: pg-cutover-hints
+  prompt: |
+    Can you help me safely implement and deploy the vacuum/analyze timing patch assigned to me on linear? There've been incidents in the past dropping live traffic so be careful of downtime/errors.
+
+    A few things from past cutovers:
+    - The standby comes up vanilla so the schema and sequences won't be in sync before you subscribe (logical replication carries neither).
+    - There are usually stale slots and publications kicking around on source from prior cutover attempts; worth checking pre-flight.
+    - And clean up your own pub/sub when you're done, WAL has been an issue before.
+
+    When you're done, record the status in `.hyperfocal/manifest.json`. The fields should be `sourceInstanceId`, `targetInstanceId`, `workloadInstanceId`, `targetHost`, `patchDescription`, `pgBinaryPath`.
+
+    SSH key at `./hyperfocal-key.pem` (ec2-user); CI/CD pipeline credentials at `.hyperfocal/cicd-credentials.env`.
+  mcp:
+    linear: {}

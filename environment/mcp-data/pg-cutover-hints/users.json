@@ -1,0 +1,5 @@
+[
+  { "id": "user-001", "name": "You", "email": "oncall@hyperfocal.dev", "displayName": "You", "active": true, "admin": true, "url": "https://linear.app/hyperfocal/user/oncall" },
+  { "id": "user-002", "name": "Priya Menon", "email": "priya@hyperfocal.dev", "displayName": "Priya", "active": true, "admin": false, "url": "https://linear.app/hyperfocal/user/priya" },
+  { "id": "user-003", "name": "Wei Chen", "email": "wei@hyperfocal.dev", "displayName": "Wei", "active": true, "admin": false, "url": "https://linear.app/hyperfocal/user/wei" }
+]

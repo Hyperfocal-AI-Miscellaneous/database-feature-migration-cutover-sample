@@ -1,0 +1,23 @@
+log:
+  level: info
+
+runner:
+  capacity: 1
+  timeout: 30m
+  insecure: true
+  fetch_timeout: 10s
+  fetch_interval: 5s
+
+container:
+  network: docker_hyperfocal
+  privileged: false
+  # act_runner >= 0.4.1 ignores -v mounts whose source isn't listed here verbatim.
+  # The /usr/local/pgsql path is where the agent's `make install` deposits the
+  # binary; the deploy key authenticates pg-deploy's SSH into target.
+  valid_volumes:
+    - /usr/local/pgsql
+    - /usr/local/pgsql/**
+    - /tmp/hyperfocal-deploy-key.pem
+  options: >-
+    -v /usr/local/pgsql:/build:ro
+    -v /tmp/hyperfocal-deploy-key.pem:/runner/deploy-key:ro
