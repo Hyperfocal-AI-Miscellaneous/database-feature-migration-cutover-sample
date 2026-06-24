@@ -1,5 +1,15 @@
 # database-feature-migration-cutover-sample
 
+> **Notice:** This repository is public for limited research review only. It is
+> **not open source**. The data and tasks are proprietary IP of Emulated, Inc.
+> and may not be copied, redistributed, used for model training, used to create
+> derivative datasets/environments, or used commercially without written
+> permission. See [`LICENSE`](./LICENSE). Contact: founders@emulated.so
+>
+> The `workspace/postgres-src/` tree is third-party PostgreSQL source under the
+> PostgreSQL License (`workspace/postgres-src/COPYRIGHT`) and is not covered by
+> the proprietary terms above.
+
 ## Task
 A live database cluster migration and cutover the agent has to drive end-to-end:
 write a feature patch, ship it through a real CI/CD pipeline to a fresh
